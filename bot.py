@@ -85,3 +85,13 @@ job_queue.run_repeating(
     interval=3600,
     first=10
 )
+from datetime import datetime
+
+cursor.execute(
+    "INSERT INTO winners(username, win_time) VALUES(?, ?)",
+    (
+        winner[1],
+        datetime.now().strftime("%d-%m-%Y %H:%M")
+    )
+)
+conn.commit()
