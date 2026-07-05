@@ -49,3 +49,33 @@ app.add_handler(CommandHandler("join", join))
 
 print("Bot Running...")
 app.run_polling()
+import random
+from datetime import datetime
+
+async def hourly_draw(context: ContextTypes.DEFAULT_TYPE):
+    cursor.execute("SELECT user_id, username FROM participants")
+    users = cursor.fetchall()
+
+    if not users:
+        await context.bot.send_message(
+            chat_id=config.CHANNEL_ID,
+            text="😔 इस घंटे कोई भी प्रतिभागी शामिल नहीं हुआ।"
+        )
+        return
+
+    winner = random.choice(users)
+
+    cursor.execute("DELETE FROM participants")
+    conn.commit()
+
+    await context.bot.send_message(
+        chat_id=config.CHANNEL_ID,
+        text=f"""🏆 Lucky Draw Winner 🏆
+
+🎉 Congratulations @{winner[1]}
+
+⏰ {datetime.now().strftime('%I:%M %p')}
+
+🍀 अगला Round अभी शुरू हो गया है।
+For Entertainment Only."""
+    )
