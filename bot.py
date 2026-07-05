@@ -112,3 +112,4 @@ async def history(update: Update, context: ContextTypes.DEFAULT_TYPE):
         msg += f"👤 {user}\n🕒 {time}\n\n"
 
     await update.message.reply_text(msg)
+    app.add_handler(CommandHandler("history", history))
