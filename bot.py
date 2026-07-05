@@ -40,15 +40,6 @@ async def join(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "✅ You have successfully joined the current Lucky Draw!"
     )
-
-
-app = ApplicationBuilder().token(config.BOT_TOKEN).build()
-
-app.add_handler(CommandHandler("start", start))
-app.add_handler(CommandHandler("join", join))
-
-print("Bot Running...")
-app.run_polling()
 import random
 from datetime import datetime
 
@@ -79,3 +70,18 @@ async def hourly_draw(context: ContextTypes.DEFAULT_TYPE):
 🍀 अगला Round अभी शुरू हो गया है।
 For Entertainment Only."""
     )
+
+app = ApplicationBuilder().token(config.BOT_TOKEN).build()
+
+app.add_handler(CommandHandler("start", start))
+app.add_handler(CommandHandler("join", join))
+
+print("Bot Running...")
+app.run_polling()
+job_queue = app.job_queue
+
+job_queue.run_repeating(
+    hourly_draw,
+    interval=3600,
+    first=10
+)
