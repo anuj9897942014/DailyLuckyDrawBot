@@ -1,33 +1,51 @@
 from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
-import random
+from telegram.ext import (
+    ApplicationBuilder,
+    CommandHandler,
+    ContextTypes,
+)
+import sqlite3
+import config
 
-BOT_TOKEN = "8886719368:AAEg-ux8qQA0n4HS2-fDfWV4eLI6_qWMtkA"
+# Database
+conn = sqlite3.connect("luckydraw.db", check_same_thread=False)
+cursor = conn.cursor()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS participants(
+    user_id INTEGER PRIMARY KEY,
+    username TEXT
+)
+""")
+
+conn.commit()
+
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "🎉 Welcome to Daily Lucky Draw Bot!\n\n"
-        "Commands:\n"
-        "/luck - Get your lucky number\n"
-        "/help - Help"
+        "🎉 Welcome to Lucky Draw Bot!\n\n"
+        "Type /join to join the current lucky draw."
     )
 
-async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+async def join(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user = update.effective_user
+
+    cursor.execute(
+        "INSERT OR IGNORE INTO participants(user_id, username) VALUES(?, ?)",
+        (user.id, user.username or user.first_name),
+    )
+    conn.commit()
+
     await update.message.reply_text(
-        "/luck - Generate your lucky number (1-100)"
+        "✅ You have successfully joined the current Lucky Draw!"
     )
 
-async def luck(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    number = random.randint(1, 100)
-    await update.message.reply_text(
-        f"🍀 Your Lucky Number is: {number}"
-    )
 
-app = ApplicationBuilder().token(BOT_TOKEN).build()
+app = ApplicationBuilder().token(config.BOT_TOKEN).build()
 
 app.add_handler(CommandHandler("start", start))
-app.add_handler(CommandHandler("help", help_command))
-app.add_handler(CommandHandler("luck", luck))
+app.add_handler(CommandHandler("join", join))
 
-print("Bot is running...")
+print("Bot Running...")
 app.run_polling()
