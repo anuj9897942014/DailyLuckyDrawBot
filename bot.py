@@ -95,3 +95,20 @@ cursor.execute(
     )
 )
 conn.commit()
+async def history(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    cursor.execute(
+        "SELECT username, win_time FROM winners ORDER BY id DESC LIMIT 10"
+    )
+
+    rows = cursor.fetchall()
+
+    if not rows:
+        await update.message.reply_text("No winners yet.")
+        return
+
+    msg = "🏆 Last 10 Winners\n\n"
+
+    for user, time in rows:
+        msg += f"👤 {user}\n🕒 {time}\n\n"
+
+    await update.message.reply_text(msg)
