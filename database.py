@@ -19,3 +19,11 @@ CREATE TABLE IF NOT EXISTS winners (
 """)
 
 conn.commit()
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS winners(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT,
+    win_time TEXT
+)
+""")
+conn.commit()
